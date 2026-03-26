@@ -1,0 +1,3 @@
+[submodule "scripts/enaBrowserTools"]
+	path = scripts/enaBrowserTools
+	url = https://github.com/enasequence/enaBrowserTools.git
