@@ -1,7 +1,7 @@
 name: data_analysis
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
 - absl-py=0.10.0
