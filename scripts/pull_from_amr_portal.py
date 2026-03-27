@@ -13,7 +13,7 @@ import subprocess
 def create_parser():
 	parser = argparse.ArgumentParser(prog='pull_from_amr_portal.py', description="Script to pull completed assemblies from AMR Portal")
 	parser.add_argument('-i', '--input', help="Input CSV from AMR Portal (manual download)")
-	parser.add_argument('-o', '--output-dir', default=f"{os.getcwd()}", help="Output directory for GCA downloads")
+	parser.add_argument('-o', '--output', default=f"{os.getcwd()}", help="Output directory for downloads")
 	parser.add_argument('-f', '--filter', help="Use to filter columns")
 	parser.add_argument('-c', '--include-count', action='store_true', help="Output counts as TSV")
 	parser.add_argument('-t', '--threads', default=1, help="Number of threads")
@@ -41,7 +41,7 @@ def pull_GCA(accession, output, release=None):
 	#url_path = f"https://ftp.ebi.ac.uk/pub/databases/amr_portal/"
 	script_path = os.path.join(script_dir, 'enaBrowserTools','python3', 'enDataGet')
 	if not os.path.exists(script_path):
-		print("MISSING ENDATAGET!")
+		print(f"MISSING ENDATAGET! {script_path}")
 		sys.exit(1)
 	else:
 		params = ['python', script_path, '-f', 'fasta', f"{accession}"]
@@ -53,10 +53,10 @@ def pull_SRA(accession, output, threads):
 	"""
 	script_path = os.path.join(script_dir, 'download_sra.sh')
 	if not os.path.exists(script_path):
-		print("MISSING DOWNLOAD_SRA.SH")
+		print(f"MISSING {script_path}")
 		sys.exit(1)
 	else:
-		params = ['bash', script_path, '-s', f"{accession}", '-o', start_dir, '-t', f"{threads}"]
+		params = ['bash', script_path, '-s', f"{accession}", '-o', f"{output}, '-t', f"{threads}"]
 		subprocess.run(params)
 
 def parse_table(input, col=None):
@@ -103,23 +103,19 @@ def main(args):
 	# pull from GCA
 	if args.pull_gca:
 		for id in subset['pheno_geno_merged-assembly_ID'].tolist():
-			pull_GCA(id, os.path.join(start_dir, 'gca_assemblies'))
+			pull_GCA(id, os.path.join(args.output, 'gca_assemblies'))
 
 	# pull from SRA
 	if args.pull_sra:
 		for id in subset['pheno_geno_merged-SRA_accession'].tolist():
-			pull_SRA(id, os.path.join(start_dir, 'sra_reads'), args.threads)
+			pull_SRA(id, os.path.join(args.output, 'sra-reads'), args.threads)
 
 
-
-
-
-pull_SRA()
 if __name__ == "__main__":
 	parser = create_parser()
 	args = parser.parse_args()
 	start_dir = os.getcwd()
-	script_dir = os.path.abspath(sys.argv[0])
+	script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
 	main(args)
 

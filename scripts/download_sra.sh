@@ -17,11 +17,11 @@ Requires:
 - SRA Toolkit
 
 To use the script:
-	download_bioproject.sh [-i input_bioproject} -o {output_dir}
+	download_sra.sh [-i {input_bioproject} -s {input_sra}] -o {output_dir}
 
 Flags:
 	-i  :  BioProject accession (PRJNA...) [WILL BE PREFERRED OVER INDIVIDUAL SRA]
-	-s  :  Sequence Read Archive (SRA) Accession
+	-s  :  Sequence Read Archive (SRA) Accession (short-read)
 	-o  :  Directory for final output files and FASTQs (default: '${PWD}')
 	-f  :  Filter term for select sample names (partial phrases accepted); only applicable for BioProject input
 	-l  :  List output only (no FASTQs will be downloaded); only applicable for BioProject input
@@ -81,8 +81,12 @@ if [ $input_bioproject != 0 ] && [ $input_sra = 0 ]; then
 		pigz -p ${threads} ${output_dir}/${sample}_R2.fastq
 
 		# removing SRA object
+		echo -e "\n Cleaning up SRA..."
 		rm -rf ${output_dir}/${accession}
 	done < ${output_dir}/${input_bioproject}.tsv
+	
+	echo -e "\n Cleaning up intermediate..."
+	rm -rf ${output_dir}/${input_bioproject}.tsv
 
 elif [ $input_bioproject = 0 ] && [ $input_sra != 0 ]; then
 # SRA
