@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+shopt -s extglob
+
 input_bioproject=0
 input_sra=0
 output_dir=$PWD
@@ -67,10 +69,10 @@ if [ $input_bioproject != 0 ] && [ $input_sra = 0 ]; then
 		echo -e "\n  Working on: ${accession}: ${sample}\n\n"
 
 		# downloading SRA object
-		prefetch ${accession} --output-directory ${output_dir}
+		prefetch --type sra ${accession} --output-directory ${output_dir}
 
 		# pulling fastq files out
-		fasterq-dump --split-files ${output_dir}/${accession}/${accession}.sra --outdir ${output_dir} --outfile ${sample}
+		fasterq-dump --split-files ${output_dir}/${accession}/${accession}.sra?(lite) --outdir ${output_dir} --outfile ${sample}
 
 		# rename output
 		rename -d 's/_1\.fastq/_R1\.fastq/g' ${output_dir}/${sample}_1.fastq
@@ -99,10 +101,10 @@ elif [ $input_bioproject = 0 ] && [ $input_sra != 0 ]; then
 	echo -e "\n  Working on: ${accession}"
 
 	# downloading SRA object
-	prefetch ${accession} --output-directory ${output_dir}
+	prefetch --type sra ${accession} --output-directory ${output_dir}
 
 	# pulling fastq files out
-	fasterq-dump --split-files ${output_dir}/${accession}/${accession}.sra --outdir ${output_dir} --outfile ${accession}
+	fasterq-dump --split-files ${output_dir}/${accession}/${accession}.sra?(lite) --outdir ${output_dir} --outfile ${accession}
 
 	# rename output
 	rename -d 's/_1\.fastq/_R1\.fastq/g' ${output_dir}/${accession}_1.fastq
